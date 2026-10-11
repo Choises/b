@@ -515,7 +515,7 @@
     <!-- 🎬  -->
         <div class="video-display-area" style="position: relative;">
       <!-- 1. Προσθέτουμε το poster="..." με το λινκ της φωτογραφίας σας -->
-      <video id="bg-video" autoplay loop muted playsinline poster="https://xatimg.com/image/5kiIaK9xqR8b.png" style="width: 100%; height: 100%; object-fit: cover;"></video>
+      <video id="bg-video" autoplay loop muted playsinline poster="https://xatimg.com/image/FevN4tb1isfP.png" style="width: 100%; height: 100%; object-fit: cover;"></video>
   <video id="on-demand-video" playsinline style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; z-index: 1;"></video>
 <div id="mp3-cover-box" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: cover; background-position: center; display: none; z-index: 2;"></div>
      
@@ -563,13 +563,14 @@
 </button>
          <button id="playlist-item-4" onclick="playOnDemand(4)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎵 The Temle Of The King - Rainbow
 </button>
-         <button id="playlist-item-5" onclick="playOnDemand(5)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎵 ROCK BALLADS - The Best
+         <button id="playlist-item-5" onclick="playOnDemand(5)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎵 Live - CHOICES
 </button>
          <button id="playlist-item-6" onclick="playOnDemand(6)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
         <button id="playlist-item-7"  onclick="playOnDemand(7)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
          <button id="playlist-item-8" onclick="playOnDemand(8)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
         <button id="playlist-item-9" onclick="playOnDemand(9)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Βίντεο Κλιπ Δοκιμή (MP4)</button>
         <button id="playlist-item-10" onclick="playOnDemand(10)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 Ασλανίδου-Μελινα</button>
+          <button id="playlist-item-11" onclick="playOnDemand(11)" style="background: #1e2530; color: #fff; border: 1px solid #2c3545; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; transition: background 0.2s;">🎬 MUSIC-TV</button>
                  <!-- 📸 ΚΟΥΜΠΙ ΕΝΕΡΓΟΠΟΙΗΣΗΣ SLIDE SHOW ΜΕΣΑ ΣΤΗ ΛΙΣΤΑ -->
         <button onclick="startPhotoSlideshow()" style="background: linear-gradient(135deg, #1f0033 0%, #3d0066 100%); color: #00ffcc; border: 1px solid #00ffcc; padding: 10px; border-radius: 6px; text-align: left; cursor: pointer; font-size: 13px; font-weight: bold; width: 100%; position: relative; z-index: 100006; pointer-events: auto; box-shadow: 0 0 8px rgba(0, 255, 204, 0.3); transition: all 0.2s;">📸 Ζωντανό Photo Slide Show (Μουσική Live)</button>
 
@@ -699,10 +700,10 @@
       isTextOnly: true
     },
     {
-      title: "ROCK BALLADS",
-      artist: "The Best",
-      fileUrl: "https://od.lk/s/NDhfMTU5NjM0MjVfQW1mZmE/Rock%20Ballads.mp3",
-      coverUrl: "https://xatimg.com/image/5Y5Q40VtuwIm.jpg", // <- ΦΩΤΟΓΡΑΦΙΑ ΚΑΛΛΙΤΕΧΝΗ 5
+      title: "Music Choices",
+      artist: "Dj Panagiotis",
+      fileUrl: "https://stream.rcast.net/200586",
+      coverUrl: "https://xatimg.com/image/5kiIaK9xqR8b.png", // <- ΦΩΤΟΓΡΑΦΙΑ ΚΑΛΛΙΤΕΧΝΗ 5
       isTextOnly: true
     },
     {
@@ -737,6 +738,13 @@
       title: "Αστο Να Πάει",
       artist: "Μελίνα-Ασλανίδου",
       fileUrl: "https://choises.github.io/A-M/asto.mp4",
+      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      isTextOnly: false
+    },
+    {
+      title: "MUSIC-TV",
+      artist: "NEW-SONG",
+      fileUrl: "https://eco.streams.ovh:8081/barazatv/index.m3u8",
       coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
       isTextOnly: false
     }
@@ -840,7 +848,7 @@
 
     // 📺 Ο ΜΗΧΑΝΙΣΜΟΣ ΠΟΥ ΠΑΙΖΕΙ ΚΑΙ .M3U8 ΚΑΙ .MP4 ΒΙΝΤΕΟ!
     const videoElement = document.getElementById('bg-video');
-    const videoSource = "https://eco.streams.ovh:8081/barazatv/index.m3u8"; 
+    const videoSource = ""; 
     let hls = null;
 
     function initHLS() {
