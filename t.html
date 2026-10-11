@@ -908,7 +908,7 @@
     }
 
 
-                          function playOnDemand(index) {
+                              function playOnDemand(index) {
         const track = onDemandTracks[index];
         if (!track) return;
 
@@ -924,11 +924,24 @@
             activeBtn.style.background = "rgba(0, 255, 204, 0.1)"; activeBtn.style.color = "#00ffcc"; activeBtn.style.borderColor = "#00ffcc"; activeBtn.style.boxShadow = "0 0 10px rgba(0, 255, 204, 0.4)";
         }
 
-        // 2. ΕΚΤΕΛΕΣΗ ΑΝΑΠΑΡΑΓΩΓΗΣ & ΚΑΘΑΡΙΣΜΟΣ
+        // 2. ΕΚΤΕΛΕΣΗ ΑΝΑΠΑΡΑΓΩΓΗΣ & ΑΠΟΛΥΤΟ ΠΑΓΩΜΑ LIVE ΡΟΗΣ (DATA SAVER)
         audio.pause(); audio.src = ""; isPlaying = false;
         playIcon.className = "fas fa-play";
         document.getElementById('song-title').innerText = track.title;
         document.getElementById('artist-name').innerText = track.artist;
+
+        // 🔥 🔥 ΚΛΕΙΔΙ 1: Παγώνουμε πλήρως το Live Βίντεο, αφαιρούμε το src του και καταστρέφουμε το HLS για να ΜΗΝ τρώει MB στο παρασκήνιο!
+        if (videoElement) {
+            videoElement.pause();
+            videoElement.style.display = 'none';
+            videoElement.removeAttribute('src');
+            videoElement.load();
+        }
+        if (hls) {
+            hls.detachMedia();
+            hls.destroy();
+            hls = null;
+        }
 
         // Καθαρίζουμε και σταματάμε το 2ο βίντεο αν έπαιζε ήδη κάτι
         const odVideo = document.getElementById('on-demand-video');
@@ -942,9 +955,9 @@
 
         if (track.isTextOnly) {
           // 🎵 ΑΝ ΕΙΝΑΙ MP3 ΤΡΑΓΟΥΔΙ
+          // 🔥 Στα MP3 εμφανίζουμε την οθόνη αλλά το bg-video παραμένει παγωμένο (σταθερή εικόνα poster) χωρίς να κατεβάζει MB!
           if (videoElement) {
               videoElement.style.display = 'block';
-              if (videoElement.paused) videoElement.play().catch(e => console.log(e)); // Ξεπαγώνει το background
           }
           
           audio.src = track.fileUrl; audio.load();
@@ -954,43 +967,34 @@
           if (coverBox && track.coverUrl) {
             coverBox.style.backgroundImage = `url('${track.coverUrl}')`; coverBox.style.display = 'block';
           }
-                } else {
+        } else {
           // 🎬 ΑΝ ΕΙΝΑΙ MP4 ΒΙΝΤΕΟ ΚΛΙΠ
           if (coverBox) coverBox.style.display = 'none'; 
-          
-          // ΚΛΕΙΔΩΜΑ 1: Βάζουμε σε παύση και κρύβουμε το Live βίντεο στο background
-          if (videoElement) {
-              videoElement.pause();
-              videoElement.style.display = 'none';
-          }
 
-          // ΚΛΕΙΔΩΜΑ 2: Ενεργοποιούμε τη 2η ανεξάρτητη οθόνη για το MP4 κλιπ
+          // Ενεργοποιούμε τη 2η ανεξάρτητη οθόνη για το MP4 κλιπ
           if (odVideo) {
               odVideo.style.display = 'block';
               odVideo.src = track.fileUrl;
               odVideo.load();
               
-              // 🔥 🔥 ΤΟ ΚΛΕΙΔΙ: Επιβάλλουμε στο νέο βίντεο να ξεκινήσει ΑΠΑΛΑ στο 50% (0.5)!
               odVideo.muted = false;
               odVideo.volume = 0.5;
 
-              // Συγχρονίζουμε live και την όρθια μπάρα έντασης στη μέση (0.5)
               const videoVolBar = document.getElementById('video-volume-bar');
               if (videoVolBar) videoVolBar.value = 0.5;
               document.getElementById('video-mute-icon').className = "fas fa-volume-up";
 
-              // Μόλις τελειώσει το MP4 βίντεο, προχωράει αυτόματα στο επόμενο
               odVideo.addEventListener('ended', playNextTrack, { once: true });
               odVideo.play().catch(e => console.log("Σφάλμα OnDemand Video:", e));
           }
         }
-
         
         const playlistPanel = document.getElementById('embedded-playlist');
         if (playlistPanel) playlistPanel.style.display = 'none';
         const chatFrame = document.getElementById('embedded-chat');
         if (chatFrame) chatFrame.style.display = 'block';
     }
+
 
 
 
@@ -1008,20 +1012,20 @@
         }
 
 
-                        function returnToLiveStream() {
+                            function returnToLiveStream() {
         document.getElementById('song-title').innerText = "📻 Panagiotis Live";
         document.getElementById('artist-name').innerText = "PM Panagiotis & PJ Lady Punk";
 
         const coverBox = document.getElementById('mp3-cover-box');
         if (coverBox) coverBox.style.display = 'none';
 
-        // 🔥 ΚΛΕΙΔΙ: Κλείνουμε οριστικά το 2ο βίντεο
+        // Κλείνουμε οριστικά το 2ο βίντεο των MP4
         const odVideo = document.getElementById('on-demand-video');
         if (odVideo) {
             odVideo.pause(); odVideo.src = ""; odVideo.style.display = "none";
         }
 
-        // 🔥 ΚΛΕΙΔΙ 2: Επαναφέρουμε, ξεπαγώνουμε και βάζουμε σε σίγαση το Live Βίντεο στο background!
+        // 🔥 🔥 Κarray-key 2: Επαναφέρουμε το Live Βίντεο, το εμφανίζουμε, αρχικοποιούμε ΞΑΝΑ το HLS και το βάζουμε να παίζει live σε σίγαση!
         if (videoElement) {
           videoElement.style.display = 'block';
           videoElement.loop = true;
@@ -1032,8 +1036,8 @@
           const videoVolBar = document.getElementById('video-volume-bar');
           if (videoVolBar) videoVolBar.value = 0;
 
-          // Αν η ροή είχε αποσυνδεθεί, την ξαναρχίζουμε
-          if (!videoElement.src && typeof initHLS === 'function') { initHLS(); }
+          // Αναγεννούμε πλήρως τη σύνδεση HLS για να ξεκινήσει πάλι η ροή
+          if (typeof initHLS === 'function') { initHLS(); }
           videoElement.play().catch(e => console.log(e));
         }
 
@@ -1043,6 +1047,7 @@
         playIcon.className = "fas fa-pause";
         isPlaying = true;
     }
+
 
 
     function copyRadioLink() {
