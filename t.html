@@ -516,7 +516,7 @@
         <div class="video-display-area" style="position: relative;">
       <!-- 1. Προσθέτουμε το poster="..." με το λινκ της φωτογραφίας σας -->
       <video id="bg-video" autoplay loop muted playsinline poster="https://xatimg.com/image/5kiIaK9xqR8b.png" style="width: 100%; height: 100%; object-fit: cover;"></video>
- 
+  <video id="on-demand-video" playsinline style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; display: none; z-index: 1;"></video>
 <div id="mp3-cover-box" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: cover; background-position: center; display: none; z-index: 2;"></div>
      
       <!-- 2. ΤΟ ΜΙΚΡΟ ΚΟΥΜΠΑΚΙ ΗΧΟΥ ΣΤΗΝ ΠΑΝΩ ΑΡΙΣΤΕΡΗ ΓΩΝΙΑ -->
@@ -730,7 +730,7 @@
       title: "Βίντεο Κλιπ Δοκιμή",
       artist: "Καλλιτέχνης Βίντεο",
       fileUrl: "https://choises.github.io/mn/cb.mp4",
-      coverUrl: "", // Το βίντεο δεν χρειάζεται φωτογραφία
+      coverUrl: "https://xatimg.com/image/rqpeuRQaMyXa.png", // Το βίντεο δεν χρειάζεται φωτογραφία
       isTextOnly: false
     },
     {
@@ -908,7 +908,7 @@
     }
 
 
-                  function playOnDemand(index) {
+                          function playOnDemand(index) {
         const track = onDemandTracks[index];
         if (!track) return;
 
@@ -924,45 +924,31 @@
             activeBtn.style.background = "rgba(0, 255, 204, 0.1)"; activeBtn.style.color = "#00ffcc"; activeBtn.style.borderColor = "#00ffcc"; activeBtn.style.boxShadow = "0 0 10px rgba(0, 255, 204, 0.4)";
         }
 
-        // 2. ΕΚΤΕΛΕΣΗ ΑΝΑΠΑΡΑΓΩΓΗΣ & ΚΑΘΑΡΙΣΜΟΣ ΠΑΛΙΩΝ LISTENERS
+        // 2. ΕΚΤΕΛΕΣΗ ΑΝΑΠΑΡΑΓΩΓΗΣ & ΚΑΘΑΡΙΣΜΟΣ
         audio.pause(); audio.src = ""; isPlaying = false;
-        if (videoElement) {
-            videoElement.pause();
-            // Αφαιρούμε τυχόν παλιούς listeners για να μην μπερδεύεται ο browser
-            videoElement.removeEventListener('ended', playNextTrack);
-        }
-        audio.removeEventListener('ended', playNextTrack);
-        
         playIcon.className = "fas fa-play";
         document.getElementById('song-title').innerText = track.title;
         document.getElementById('artist-name').innerText = track.artist;
 
-        if (hls) { hls.detachMedia(); }
+        // Καθαρίζουμε και σταματάμε το 2ο βίντεο αν έπαιζε ήδη κάτι
+        const odVideo = document.getElementById('on-demand-video');
+        if (odVideo) {
+            odVideo.pause(); odVideo.src = ""; odVideo.style.display = "none";
+            odVideo.removeEventListener('ended', playNextTrack);
+        }
+        audio.removeEventListener('ended', playNextTrack);
+        
         const coverBox = document.getElementById('mp3-cover-box');
 
         if (track.isTextOnly) {
           // 🎵 ΑΝ ΕΙΝΑΙ MP3 ΤΡΑΓΟΥΔΙ
           if (videoElement) {
               videoElement.style.display = 'block';
-              
-              // 🔥 🔥 ΤΟ ΑΠΟΛΥΤΟ ΚΛΕΙΔΙ: Μηδενίζουμε live την ένταση του βίντεο-φόντου για να μην μπερδεύεται ο ήχος με το MP3!
-              videoElement.muted = true; 
-              videoElement.volume = 0;
-              document.getElementById('video-mute-icon').className = "fas fa-volume-mute";
-              const videoVolBar = document.getElementById('video-volume-bar');
-              if (videoVolBar) videoVolBar.value = 0;
-              
-              videoElement.loop = true; // Το βίντεο-φόντο κάνει loop ελεύθερα
-              if (videoSource.endsWith('.m3u8')) { initHLS(); }
-              videoElement.play().catch(e => console.log(e));
+              if (videoElement.paused) videoElement.play().catch(e => console.log(e)); // Ξεπαγώνει το background
           }
           
-          audio.src = track.fileUrl; 
-          audio.load(); 
-          
-          // Συνδέουμε το Autoplay Next στο audio για τα MP3
+          audio.src = track.fileUrl; audio.load();
           audio.addEventListener('ended', playNextTrack, { once: true });
-          
           audio.play().catch(e => console.log(e));
           
           if (coverBox && track.coverUrl) {
@@ -971,25 +957,29 @@
         } else {
           // 🎬 ΑΝ ΕΙΝΑΙ MP4 ΒΙΝΤΕΟ ΚΛΙΠ
           if (coverBox) coverBox.style.display = 'none'; 
+          
+          // 🔥 ΚΛΕΙΔΩΜΑ 1: Βάζουμε σε παύση και κρύβουμε το Live βίντεο στο background!
           if (videoElement) {
-            videoElement.style.display = 'block';
-            videoElement.src = track.fileUrl; 
-            videoElement.load(); 
-            
-            // Απενεργοποιούμε το loop για να τελειώσει το βίντεο κλιπ
-            videoElement.loop = false; 
-            
-            // Συγχρονισμός έντασης στο ΜΑΞ για το βίντεο
-            videoElement.muted = false;
-            videoElement.volume = 0.5;
-            document.getElementById('video-mute-icon').className = "fas fa-volume-up";
-            const videoVolBar = document.getElementById('video-volume-bar');
-            if (videoVolBar) videoVolBar.value = 0.5;
+              videoElement.pause();
+              videoElement.style.display = 'none';
+          }
 
-            // Συνδέουμε το Autoplay Next στο videoElement για τα MP4
-            videoElement.addEventListener('ended', playNextTrack, { once: true });
-            
-            videoElement.play().catch(e => console.log(e));
+          // 🔥 ΚΛΕΙΔΩΜΑ 2: Ενεργοποιούμε τη 2η ανεξάρτητη οθόνη για το MP4 κλιπ!
+          if (odVideo) {
+              odVideo.style.display = 'block';
+              odVideo.src = track.fileUrl;
+              odVideo.load();
+              odVideo.muted = false;
+              odVideo.volume = 0.5;
+
+              // Συγχρονίζουμε live και την όρθια μπάρα έντασης
+              const videoVolBar = document.getElementById('video-volume-bar');
+              if (videoVolBar) videoVolBar.value = 0.5;
+              document.getElementById('video-mute-icon').className = "fas fa-volume-up";
+
+              // Μόλις τελειώσει το MP4 βίντεο, προχωράει αυτόματα στο επόμενο
+              odVideo.addEventListener('ended', playNextTrack, { once: true });
+              odVideo.play().catch(e => console.log("Σφάλμα OnDemand Video:", e));
           }
         }
         
@@ -998,6 +988,8 @@
         const chatFrame = document.getElementById('embedded-chat');
         if (chatFrame) chatFrame.style.display = 'block';
     }
+
+
 
 
 
@@ -1013,36 +1005,42 @@
         }
 
 
-                    function returnToLiveStream() {
+                        function returnToLiveStream() {
         document.getElementById('song-title').innerText = "📻 Panagiotis Live";
         document.getElementById('artist-name').innerText = "PM Panagiotis & PJ Lady Punk";
 
         const coverBox = document.getElementById('mp3-cover-box');
         if (coverBox) coverBox.style.display = 'none';
 
-                if (videoElement) {
-          videoElement.style.display = 'block';
-          videoElement.loop = true; // 🔁 Επαναφέρουμε το loop στο Live Stream!
-          videoElement.muted = true;
-          // ... ο υπόλοιπος κώδικας της returnToLiveStream όπως είναι ...
+        // 🔥 ΚΛΕΙΔΙ: Κλείνουμε οριστικά το 2ο βίντεο
+        const odVideo = document.getElementById('on-demand-video');
+        if (odVideo) {
+            odVideo.pause(); odVideo.src = ""; odVideo.style.display = "none";
+        }
 
-          videoElement.volume = 0; // Μηδενισμός έντασης βίντεο στο Live
-          document.getElementById('video-mute-icon').className = "fas fa-volume-mute";
+        // 🔥 ΚΛΕΙΔΙ 2: Επαναφέρουμε, ξεπαγώνουμε και βάζουμε σε σίγαση το Live Βίντεο στο background!
+        if (videoElement) {
+          videoElement.style.display = 'block';
+          videoElement.loop = true;
+          videoElement.muted = true;
+          videoElement.volume = 0;
           
-          // 🔥 ΚΛΕΙΔΙ: Κατεβάζει την όρθια μπάρα στο μηδέν κατά την επιστροφή στο Live
+          document.getElementById('video-mute-icon').className = "fas fa-volume-mute";
           const videoVolBar = document.getElementById('video-volume-bar');
           if (videoVolBar) videoVolBar.value = 0;
 
-          initHLS();
+          // Αν η ροή είχε αποσυνδεθεί, την ξαναρχίζουμε
+          if (!videoElement.src && typeof initHLS === 'function') { initHLS(); }
           videoElement.play().catch(e => console.log(e));
         }
 
-         audio.src = tracksData[0].audioSrc; 
-    audio.load();
+        audio.src = tracksData[0].audioSrc; 
+        audio.load();
         audio.play().catch(e => console.log(e));
         playIcon.className = "fas fa-pause";
         isPlaying = true;
     }
+
 
     function copyRadioLink() {
       const currentLink ="https://panos316radio.blogspot.com/"
