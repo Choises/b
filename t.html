@@ -954,25 +954,27 @@
           if (coverBox && track.coverUrl) {
             coverBox.style.backgroundImage = `url('${track.coverUrl}')`; coverBox.style.display = 'block';
           }
-        } else {
+                } else {
           // 🎬 ΑΝ ΕΙΝΑΙ MP4 ΒΙΝΤΕΟ ΚΛΙΠ
           if (coverBox) coverBox.style.display = 'none'; 
           
-          // 🔥 ΚΛΕΙΔΩΜΑ 1: Βάζουμε σε παύση και κρύβουμε το Live βίντεο στο background!
+          // ΚΛΕΙΔΩΜΑ 1: Βάζουμε σε παύση και κρύβουμε το Live βίντεο στο background
           if (videoElement) {
               videoElement.pause();
               videoElement.style.display = 'none';
           }
 
-          // 🔥 ΚΛΕΙΔΩΜΑ 2: Ενεργοποιούμε τη 2η ανεξάρτητη οθόνη για το MP4 κλιπ!
+          // ΚΛΕΙΔΩΜΑ 2: Ενεργοποιούμε τη 2η ανεξάρτητη οθόνη για το MP4 κλιπ
           if (odVideo) {
               odVideo.style.display = 'block';
               odVideo.src = track.fileUrl;
               odVideo.load();
+              
+              // 🔥 🔥 ΤΟ ΚΛΕΙΔΙ: Επιβάλλουμε στο νέο βίντεο να ξεκινήσει ΑΠΑΛΑ στο 50% (0.5)!
               odVideo.muted = false;
               odVideo.volume = 0.5;
 
-              // Συγχρονίζουμε live και την όρθια μπάρα έντασης
+              // Συγχρονίζουμε live και την όρθια μπάρα έντασης στη μέση (0.5)
               const videoVolBar = document.getElementById('video-volume-bar');
               if (videoVolBar) videoVolBar.value = 0.5;
               document.getElementById('video-mute-icon').className = "fas fa-volume-up";
@@ -982,6 +984,7 @@
               odVideo.play().catch(e => console.log("Σφάλμα OnDemand Video:", e));
           }
         }
+
         
         const playlistPanel = document.getElementById('embedded-playlist');
         if (playlistPanel) playlistPanel.style.display = 'none';
@@ -1085,25 +1088,34 @@
             socialBox.style.setProperty('background', 'transparent', 'important');
         }
     }
-   // 📺 Live Ρύθμιση της Έντασης του Κεντρικού Βίντεο από την Όρθια Μπάρα
+     // 📺 Live Ρύθμιση της Έντασης και των Δύο Βίντεο από την Όρθια Μπάρα
     document.addEventListener("DOMContentLoaded", () => {
         const videoVolBar = document.getElementById('video-volume-bar');
-        if (videoVolBar && videoElement) {
+        const liveVideo = document.getElementById('bg-video');
+        const odVideo = document.getElementById('on-demand-video');
+        
+        if (videoVolBar) {
             videoVolBar.addEventListener('input', (e) => {
                 const vol = e.target.value;
-                videoElement.volume = vol;
+                
+                // 🔥 🔥 ΑΛΛΑΖΕΙ Η ΕΝΤΑΣΗ ΚΑΙ ΣΤΑ ΔΥΟ ΒΙΝΤΕΟ LIVE!
+                if (liveVideo) liveVideo.volume = vol;
+                if (odVideo) odVideo.volume = vol;
                 
                 const muteIcon = document.getElementById('video-mute-icon');
                 if (vol > 0) {
-                    videoElement.muted = false;
+                    if (liveVideo) liveVideo.muted = false;
+                    if (odVideo) odVideo.muted = false;
                     if (muteIcon) muteIcon.className = "fas fa-volume-up";
                 } else {
-                    videoElement.muted = true;
+                    if (liveVideo) liveVideo.muted = true;
+                    if (odVideo) odVideo.muted = true;
                     if (muteIcon) muteIcon.className = "fas fa-volume-mute";
                 }
             });
         }
     });
+
     // 🔄 ΟΛΟΚΑΙΝΟΥΡΓΙΑ ΣΥΝΑΡΤΗΣΗ ΓΙΑ ΤΟ ΚΟΥΜΠΙ "Χ" - ΚΛΕΙΝΕΙ ΑΚΑΡΙΑΙΑ ΤΗ ΛΙΣΤΑ!
     function closePlaylistAndReturn() {
         const playlistPanel = document.getElementById('embedded-playlist');
